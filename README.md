@@ -1,7 +1,7 @@
 # GPU Tiling Test
 
-The program offers two internal modes: TILING_MODE_TILES and TILING_MODE_INDICES.
-- TILING_MODE_INDICES is only supported on NVIDIA graphis cards. It uses GL_NV_shader_thread_group to output the SM (streaming multiprocessor) number, warp number or thread number of a fragment. The following modes are supported (and activated by pressing the corresponding number key on the keyboard):
+The program offers two internal modes: TILING_MODE_TILES and TILING_MODE_BINNING.
+- TILING_MODE_BINNING is only supported on NVIDIA graphis cards. It uses GL_NV_shader_thread_group to output the SM (streaming multiprocessor) number, warp number or thread number of a fragment. The following modes are supported (and activated by pressing the corresponding number key on the keyboard):
    - 1: Combined thread number (red channel), warp number (green channel) and SM number (blue channel)
    - 2: Thread number (multiplied with color.rgb)
    - 3: Warp number (multiplied with color.rgb)

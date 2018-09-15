@@ -37,7 +37,7 @@ enum TilingMode {
 	 * b) The green channel the warp index in each SM (rescaled to  [0,255])
 	 * c) The blue channel the SM index (rescaled to [0,255])
 	 */
-	TILING_MODE_INDICES,
+	TILING_MODE_BINNING,
 
 	/**
 	 * Renders multiple triangles (similar to https://github.com/nlguillemot/trianglebin) and outputs only a limited
@@ -52,8 +52,10 @@ public:
 	TilingTestApp();
 	~TilingTestApp();
 	void render();
-	void renderScene(); // Renders lighted scene
+	void renderScene();
+	void renderGUI();
 	void update(float dt);
+    void processSDLEvent(const SDL_Event &event);
 	void resolutionChanged(EventPtr event);
 
 private:
@@ -62,16 +64,26 @@ private:
 	// Lighting & rendering
 	ShaderProgramPtr plainShader;
 	ShaderProgramPtr whiteSolidShader;
-	ShaderProgramPtr tilingIndicesShader; // for TILING_MODE_INDICES
+	ShaderProgramPtr tilingIndicesShader; // for TILING_MODE_BINNING
 	ShaderProgramPtr tilingTilesShader; // for TILING_MODE_TILES
 
 	// Objects in the scene
-	ShaderAttributesPtr singleTriangle; // for TILING_MODE_INDICES
+	ShaderAttributesPtr singleTriangle; // for TILING_MODE_BINNING
 	ShaderAttributesPtr multiTriangle; // for TILING_MODE_TILES
 	sgl::GeometryBufferPtr atomicCounterBuffer;
 	int numMultiTriangles;
 
-	// For off-screen rendering (used for rendering at lower resolution than native)
+	// Rendering parameters
+    uint32_t maxNumPixels;
+    int renderWidth, renderHeight;
+    int resolutionScale = 1;
+
+    // User interface
+    bool showSettingsWindow = true;
+    float numPixelsPercent = 50; // In %
+    int guiNewMode = 3; // Mode selection
+
+    // For off-screen rendering (used for rendering at lower resolution than native)
 	FramebufferObjectPtr fbo;
 	TexturePtr renderTexture;
 };

@@ -33,19 +33,20 @@
 #include <Graphics/Texture/TextureManager.hpp>
 #include <Graphics/OpenGL/SystemGL.hpp>
 #include <Graphics/OpenGL/GeometryBuffer.hpp>
+#include <ImGui/ImGuiWrapper.hpp>
 
 #include "MainApp.hpp"
 
 // Defines whether to use an off-screen framebuffer (with resolution scaling) or on-screen rendering
 #define RENDER_FRAMEBUFFER
-static int RESOLUTION_SCALE = 1;
+const int MAX_RESOLUTION_SCALE = 32;
 
-// Modes: TILING_MODE_INDICES, TILING_MODE_TILES
-TilingTestApp::TilingTestApp() : mode(TILING_MODE_INDICES), numMultiTriangles(7) //, recording(false), videoWriter(NULL)
+// Modes: TILING_MODE_BINNING, TILING_MODE_TILES
+TilingTestApp::TilingTestApp() : mode(TILING_MODE_BINNING), numMultiTriangles(7) //, recording(false), videoWriter(NULL)
 {
 	if (!SystemGL::get()->isGLExtensionAvailable("GL_NV_shader_thread_group")) {
 		Logfile::get()->writeError("Error: GL_NV_shader_thread_group not available. You won't be able to use "
-							 "TILING_MODE_INDICES, however TILING_MODE_TILES should work on all systems.");
+							 "TILING_MODE_BINNING, however TILING_MODE_TILES should work on all systems.");
         mode = TILING_MODE_TILES;
 	} else {
         GLint warpSize, warpsPerSM, smCount;
@@ -63,7 +64,7 @@ TilingTestApp::TilingTestApp() : mode(TILING_MODE_INDICES), numMultiTriangles(7)
 	tilingTilesShader = ShaderManager->getShaderProgram({"TilingTiles.Vertex", "TilingTiles.Fragment"});
 
 
-	// For TILING_MODE_INDICES. For more information see the enum type "TilingMode".
+	// For TILING_MODE_BINNING. For more information see the enum type "TilingMode".
 	std::vector<VertexPlain> triangleVertices = {
 			VertexPlain(glm::vec3(-1,-1,0)),
 			VertexPlain(glm::vec3(1,1,0)),
@@ -74,6 +75,7 @@ TilingTestApp::TilingTestApp() : mode(TILING_MODE_INDICES), numMultiTriangles(7)
 	singleTriangle = ShaderManager->createShaderAttributes(tilingIndicesShader);
 	singleTriangle->addGeometryBuffer(geomBuffer, "vertexPosition", ATTRIB_FLOAT, 3);
 	tilingIndicesShader->setUniform("color", Color(165, 220, 84, 255));
+	tilingIndicesShader->setUniform("mode", guiNewMode);
 
 
 	// For TILING_MODE_TILES. For more information see the enum type "TilingMode".
@@ -146,6 +148,8 @@ void TilingTestApp::render()
 	Renderer->blitTexture(renderTexture, AABB2(glm::vec2(-1,-1), glm::vec2(1,1)));
 #endif
 
+    renderGUI();
+
 	// Video recording enabled?
 	//if (recording) {
 	//	videoWriter->pushWindowFrame();
@@ -157,7 +161,7 @@ void TilingTestApp::renderScene()
 	Renderer->setProjectionMatrix(matrixIdentity());
 	Renderer->setModelMatrix(matrixIdentity());
 	Renderer->setViewMatrix(matrixIdentity());
-	if (mode == TILING_MODE_INDICES) {
+	if (mode == TILING_MODE_BINNING) {
 		Renderer->render(singleTriangle);
 	} else if (mode == TILING_MODE_TILES) {
 	    // Clear the fragment counter buffer before rendering
@@ -171,21 +175,83 @@ void TilingTestApp::renderScene()
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
+void TilingTestApp::renderGUI()
+{
+	ImGuiWrapper::get()->renderStart();
+    //ImGuiWrapper::get()->renderDemoWindow();
+
+    if (showSettingsWindow) {
+		ImGui::Begin("Settings", &showSettingsWindow);
+
+		// Mode selection (further settings dependent on main mode)
+		bool updateMode = false;
+		if (ImGui::Button(mode == TILING_MODE_BINNING ? "Show Tiles" : "Show Binning")) {
+			mode = mode == TILING_MODE_BINNING ? TILING_MODE_TILES : TILING_MODE_BINNING;
+		}
+		if (mode == TILING_MODE_BINNING) {
+			ImGui::SameLine();
+			if (ImGui::RadioButton("All", &guiNewMode, 1)) { updateMode = true; } ImGui::SameLine();
+			if (ImGui::RadioButton("Thread ID", &guiNewMode, 2)) { updateMode = true; } ImGui::SameLine();
+			if (ImGui::RadioButton("Warp ID", &guiNewMode, 3)) { updateMode = true; } ImGui::SameLine();
+			if (ImGui::RadioButton("SM ID", &guiNewMode, 4)) { updateMode = true; }
+		}
+		if (updateMode) {
+			tilingIndicesShader->setUniform("mode", guiNewMode);
+		}
+
+		// Zoom factor of off-screen rendering
+		if (ImGui::SliderInt("Zoom", &resolutionScale, 1, MAX_RESOLUTION_SCALE)) {
+			resolutionChanged(EventPtr());
+		}
+
+		// Percent of pixels rendered in tiles mode
+		if (mode == TILING_MODE_TILES && ImGui::SliderFloat("#Pixels", &numPixelsPercent, 0, 100, "%.0f\%%")) {
+			Window *window = AppSettings::get()->getMainWindow();
+			int width = window->getWidth();
+			int height = window->getHeight();
+			maxNumPixels = static_cast<uint32_t>(width*height*numMultiTriangles/2 * numPixelsPercent/100.0f);
+			tilingTilesShader->setUniform("maxNumPixels", maxNumPixels);
+		}
+
+		// Color selection in binning mode (if not showing all values in different color channels in mode 1)
+		if (mode == TILING_MODE_BINNING && guiNewMode != 1) {
+			static ImVec4 color = ImColor(165, 220, 84, 255);
+			int misc_flags = 0;
+			ImGui::Text("Color widget:");
+			ImGui::SameLine(); ImGuiWrapper::get()->showHelpMarker("Click on the colored square to open a color picker."
+																   "\nCTRL+click on individual component to input value.\n");
+			if (ImGui::ColorEdit3("MyColor##1", (float*)&color, misc_flags)) {
+				tilingIndicesShader->setUniform("color", colorFromFloat(color.x, color.y, color.z, 1.0));
+			}
+		}
+
+		ImGui::End();
+	}
+
+	//ImGui::RadioButton
+	ImGuiWrapper::get()->renderEnd();
+}
+
+void TilingTestApp::processSDLEvent(const SDL_Event &event)
+{
+    ImGuiWrapper::get()->processSDLEvent(event);
+}
+
 void TilingTestApp::resolutionChanged(EventPtr event)
 {
 	Window *window = AppSettings::get()->getMainWindow();
 	int width = window->getWidth();
 	int height = window->getHeight();
 	glViewport(0, 0, width, height);
-	int renderWidth = width;
-	int renderHeight = height;
+	renderWidth = width;
+	renderHeight = height;
 
 #ifdef RENDER_FRAMEBUFFER
     // Scale screen resolution
-    if (mode == TILING_MODE_INDICES) {
-		renderWidth /= RESOLUTION_SCALE;
-		renderHeight /= RESOLUTION_SCALE;
-	}
+    //if (mode == TILING_MODE_BINNING) {
+	renderWidth /= resolutionScale;
+	renderHeight /= resolutionScale;
+	//}
 
     fbo = Renderer->createFBO();
     TextureSettings settings;
@@ -195,7 +261,7 @@ void TilingTestApp::resolutionChanged(EventPtr event)
 #else
 #endif
 	// Triangle covers half of screen. Thus, plan to render 1/4th of pixels on screen * #triangles.
-	uint32_t maxNumPixels = static_cast<uint32_t>(renderWidth*renderHeight*numMultiTriangles/4);
+	maxNumPixels = static_cast<uint32_t>(width*height*numMultiTriangles/2 * numPixelsPercent/100.0f);
 	tilingTilesShader->setUniform("maxNumPixels", maxNumPixels);
 }
 
@@ -203,22 +269,29 @@ void TilingTestApp::update(float dt)
 {
 	AppLogic::update(dt);
 
-    if (Keyboard->keyPressed(SDLK_0)) {
-        mode = mode == TILING_MODE_INDICES ? TILING_MODE_TILES : TILING_MODE_INDICES;
+	ImGuiIO &io = ImGui::GetIO();
+	if (io.WantCaptureKeyboard) {
+		// Ignore inputs below
+		return;
+	}
+
+	if (Keyboard->keyPressed(SDLK_0)) {
+        mode = mode == TILING_MODE_BINNING ? TILING_MODE_TILES : TILING_MODE_BINNING;
     }
 
     for (int i = 1; i <= 4; i++) {
         if (Keyboard->keyPressed(SDLK_0+i)) {
             tilingIndicesShader->setUniform("mode", i);
+			guiNewMode = i;
         }
 	}
 
 	// Scale screen resolution
-    if (Keyboard->keyPressed(SDLK_UP) && RESOLUTION_SCALE < 64 && mode == TILING_MODE_INDICES) {
-        RESOLUTION_SCALE *= 2;
+    if (Keyboard->keyPressed(SDLK_UP) && resolutionScale < MAX_RESOLUTION_SCALE) {
+		resolutionScale *= 2;
         resolutionChanged(EventPtr());
-    } else if (Keyboard->keyPressed(SDLK_DOWN) && RESOLUTION_SCALE > 1 && mode == TILING_MODE_INDICES) {
-        RESOLUTION_SCALE /= 2;
+    } else if (Keyboard->keyPressed(SDLK_DOWN) && resolutionScale > 1) {
+		resolutionScale /= 2;
         resolutionChanged(EventPtr());
     }
 }
