@@ -49,13 +49,14 @@ TilingTestApp::TilingTestApp() : mode(TILING_MODE_BINNING), numMultiTriangles(7)
 							 "TILING_MODE_BINNING, however TILING_MODE_TILES should work on all systems.");
         mode = TILING_MODE_TILES;
 	} else {
-        GLint warpSize, warpsPerSM, smCount;
+        //GLint warpSize, warpsPerSM, smCount;
         glGetIntegerv(GL_WARP_SIZE_NV, &warpSize);
         glGetIntegerv(GL_WARPS_PER_SM_NV, &warpsPerSM);
         glGetIntegerv(GL_SM_COUNT_NV, &smCount);
         std::cout << "Warp size: " << warpSize << std::endl;
         std::cout << "Warps per SM: " << warpsPerSM << std::endl;
         std::cout << "SM count: " << smCount << std::endl;
+        // TODO: GUI
 	}
 
 	plainShader = ShaderManager->getShaderProgram({"Mesh.Vertex.Plain", "Mesh.Fragment.Plain"});
@@ -182,6 +183,9 @@ void TilingTestApp::renderGUI()
 
     if (showSettingsWindow) {
 		ImGui::Begin("Settings", &showSettingsWindow);
+
+		// Output of GPU capabilities: warpSize, warpsPerSM, smCount
+		ImGui::Text("Warp size: %d, Warps per SM: %d, #SMs: %d", warpSize, warpsPerSM, smCount);
 
 		// Mode selection (further settings dependent on main mode)
 		bool updateMode = false;

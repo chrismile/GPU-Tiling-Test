@@ -80,6 +80,7 @@ private:
 
     // User interface
     bool showSettingsWindow = true;
+    int warpSize = 0, warpsPerSM = 0, smCount = 0;
     float numPixelsPercent = 50; // In %
     int guiNewMode = 3; // Mode selection
 
