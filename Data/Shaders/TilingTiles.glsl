@@ -7,9 +7,6 @@ layout(location = 1) in vec3 vertexColor;
 
 out vec4 triangleColor;
 
-// Model-view-projection matrix
-uniform mat4 mvpMatrix;
-
 void main()
 {
     triangleColor = vec4(vertexColor, 1.0);
