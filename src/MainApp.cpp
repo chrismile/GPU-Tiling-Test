@@ -53,10 +53,6 @@ TilingTestApp::TilingTestApp() : mode(TILING_MODE_BINNING), numMultiTriangles(7)
         glGetIntegerv(GL_WARP_SIZE_NV, &warpSize);
         glGetIntegerv(GL_WARPS_PER_SM_NV, &warpsPerSM);
         glGetIntegerv(GL_SM_COUNT_NV, &smCount);
-        std::cout << "Warp size: " << warpSize << std::endl;
-        std::cout << "Warps per SM: " << warpsPerSM << std::endl;
-        std::cout << "SM count: " << smCount << std::endl;
-        // TODO: GUI
 	}
 
 	plainShader = ShaderManager->getShaderProgram({"Mesh.Vertex.Plain", "Mesh.Fragment.Plain"});
@@ -191,6 +187,7 @@ void TilingTestApp::renderGUI()
 		bool updateMode = false;
 		if (ImGui::Button(mode == TILING_MODE_BINNING ? "Show Tiles" : "Show Binning")) {
 			mode = mode == TILING_MODE_BINNING ? TILING_MODE_TILES : TILING_MODE_BINNING;
+			resolutionChanged(EventPtr());
 		}
 		if (mode == TILING_MODE_BINNING) {
 			ImGui::SameLine();
@@ -216,6 +213,12 @@ void TilingTestApp::renderGUI()
 			maxNumPixels = static_cast<uint32_t>(width*height*numMultiTriangles/2 * numPixelsPercent/100.0f);
 			tilingTilesShader->setUniform("maxNumPixels", maxNumPixels);
 		}
+
+		const char *pixelFormatNames[] = {"RGBA8", "RGBA16", "RGBA16F", "RGBA32F"};
+		if (mode == TILING_MODE_TILES && ImGui::Combo("Pixel Format", &currentPixelFormat, pixelFormatNames,
+		        IM_ARRAYSIZE(pixelFormatNames))) {
+            resolutionChanged(EventPtr());
+        }
 
 		// Color selection in binning mode (if not showing all values in different color channels in mode 1)
 		if (mode == TILING_MODE_BINNING && guiNewMode != 1) {
@@ -259,6 +262,25 @@ void TilingTestApp::resolutionChanged(EventPtr event)
 
     fbo = Renderer->createFBO();
     TextureSettings settings;
+    if (mode == TILING_MODE_TILES) {
+		if (currentPixelFormat == 0) {
+			settings.internalFormat = GL_RGBA8;
+			settings.pixelFormat = GL_RGBA;
+			settings.pixelType = GL_UNSIGNED_INT;
+		} else if (currentPixelFormat == 1) {
+			settings.internalFormat = GL_RGBA16;
+			settings.pixelFormat = GL_RGBA;
+			settings.pixelType = GL_UNSIGNED_INT;
+		} else if (currentPixelFormat == 1) {
+			settings.internalFormat = GL_RGBA16F;
+			settings.pixelFormat = GL_RGBA;
+			settings.pixelType = GL_FLOAT;
+		} else if (currentPixelFormat == 1) {
+			settings.internalFormat = GL_RGBA32F;
+			settings.pixelFormat = GL_RGBA;
+			settings.pixelType = GL_FLOAT;
+		}
+    }
     settings.textureMagFilter = GL_NEAREST;
     renderTexture = TextureManager->createEmptyTexture(renderWidth, renderHeight, settings);
     fbo->bindTexture(renderTexture);

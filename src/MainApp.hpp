@@ -77,6 +77,7 @@ private:
     uint32_t maxNumPixels;
     int renderWidth, renderHeight;
     int resolutionScale = 1;
+    int currentPixelFormat = 0;
 
     // User interface
     bool showSettingsWindow = true;
