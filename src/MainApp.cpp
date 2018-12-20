@@ -44,7 +44,7 @@ const int MAX_RESOLUTION_SCALE = 32;
 // Modes: TILING_MODE_BINNING, TILING_MODE_TILES
 TilingTestApp::TilingTestApp() : mode(TILING_MODE_BINNING), numMultiTriangles(7) //, recording(false), videoWriter(NULL)
 {
-	if (!SystemGL::get()->isGLExtensionAvailable("GL_NV_shader_thread_group")) {
+	if (!SystemGL::get()->isGLExtensionAvailable(".")) {
 		Logfile::get()->writeError("Error: GL_NV_shader_thread_group not available. You won't be able to use "
 							 "TILING_MODE_BINNING, however TILING_MODE_TILES should work on all systems.");
         mode = TILING_MODE_TILES;
