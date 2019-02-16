@@ -14,10 +14,10 @@ uniform vec4 color;
 
 void main()
 {
-	fragmentColor = color;
-	fragmentNormal = vertexNormal;
-	fragmentPositonLocal = (vec4(vertexPosition, 1.0)).xyz;
-	gl_Position = mvpMatrix * vec4(vertexPosition, 1.0);
+    fragmentColor = color;
+    fragmentNormal = vertexNormal;
+    fragmentPositonLocal = (vec4(vertexPosition, 1.0)).xyz;
+    gl_Position = mvpMatrix * vec4(vertexPosition, 1.0);
 }
 
 
@@ -46,33 +46,33 @@ uniform int bandedColorShading = 1;
 
 void main()
 {
-	// Pseudo Phong shading
-	vec4 bandColor = fragmentColor;
-	float stripWidth = 2.0;
-	if (mod(fragmentPositonLocal.x, 2.0*stripWidth) < stripWidth) {
-		bandColor = vec4(1.0,1.0,1.0,1.0);
-	}
-	vec4 color = vec4(bandColor.rgb * (dot(fragmentNormal, vec3(1.0,0.0,0.0))/4.0+0.75), fragmentColor.a);
+    // Pseudo Phong shading
+    vec4 bandColor = fragmentColor;
+    float stripWidth = 2.0;
+    if (mod(fragmentPositonLocal.x, 2.0*stripWidth) < stripWidth) {
+        bandColor = vec4(1.0,1.0,1.0,1.0);
+    }
+    vec4 color = vec4(bandColor.rgb * (dot(fragmentNormal, vec3(1.0,0.0,0.0))/4.0+0.75), fragmentColor.a);
 
-	if (bandedColorShading == 0) {
-	    vec3 lightDirection = vec3(1.0,0.0,0.0);
-	    vec3 ambientShading = ambientColor * 0.1;
-	    vec3 diffuseShading = diffuseColor * clamp(dot(fragmentNormal, lightDirection)/2.0+0.75, 0.0, 1.0);
-	    vec3 specularShading = specularColor * specularExponent * 0.00001; // In order not to get an unused warning
-	    color = vec4(ambientShading + diffuseShading + specularShading, opacity * fragmentColor.a);
-	}
+    if (bandedColorShading == 0) {
+        vec3 lightDirection = vec3(1.0,0.0,0.0);
+        vec3 ambientShading = ambientColor * 0.1;
+        vec3 diffuseShading = diffuseColor * clamp(dot(fragmentNormal, lightDirection)/2.0+0.75, 0.0, 1.0);
+        vec3 specularShading = specularColor * specularExponent * 0.00001; // In order not to get an unused warning
+        color = vec4(ambientShading + diffuseShading + specularShading, opacity * fragmentColor.a);
+    }
 
 #ifdef DIRECT_BLIT_GATHER
-	// Direct rendering
-	fragColor = color;
+    // Direct rendering
+    fragColor = color;
 #else
 #ifdef REQUIRE_INVOCATION_INTERLOCK
-	// Area of mutual exclusion for fragments mapping to the same pixel
-	beginInvocationInterlockARB();
-	gatherFragment(color);
-	endInvocationInterlockARB();
+    // Area of mutual exclusion for fragments mapping to the same pixel
+    beginInvocationInterlockARB();
+    gatherFragment(color);
+    endInvocationInterlockARB();
 #else
-	gatherFragment(color);
+    gatherFragment(color);
 #endif
 #endif
 }

@@ -10,7 +10,7 @@ out vec4 triangleColor;
 void main()
 {
     triangleColor = vec4(vertexColor, 1.0);
-	gl_Position = mvpMatrix * vec4(vertexPosition, 1.0);
+    gl_Position = mvpMatrix * vec4(vertexPosition, 1.0);
 }
 
 -- Fragment
@@ -28,7 +28,7 @@ uniform uint maxNumPixels;
 
 void main()
 {
-	uint insertIndex = atomicCounterIncrement(fragCounter);
+    uint insertIndex = atomicCounterIncrement(fragCounter);
     if (insertIndex >= maxNumPixels) {
         discard;
     }

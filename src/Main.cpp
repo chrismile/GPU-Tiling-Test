@@ -15,25 +15,25 @@ using namespace std;
 using namespace sgl;
 
 int main(int argc, char *argv[]) {
-	// Initialize the filesystem utilities
-	FileUtils::get()->initialize("gpu-tiling-test", argc, argv);
+    // Initialize the filesystem utilities
+    FileUtils::get()->initialize("gpu-tiling-test", argc, argv);
 
-	// Load the file containing the app settings
-	string settingsFile = FileUtils::get()->getConfigDirectory() + "settings.txt";
-	AppSettings::get()->loadSettings(settingsFile.c_str());
-	AppSettings::get()->getSettings().addKeyValue("window-multisamples", 0);
-	//AppSettings::get()->getSettings().addKeyValue("windowSettings.debugContext", true);
+    // Load the file containing the app settings
+    string settingsFile = FileUtils::get()->getConfigDirectory() + "settings.txt";
+    AppSettings::get()->loadSettings(settingsFile.c_str());
+    AppSettings::get()->getSettings().addKeyValue("window-multisamples", 0);
+    //AppSettings::get()->getSettings().addKeyValue("windowSettings.debugContext", true);
     AppSettings::get()->setLoadGUI();
 
-	Window *window = AppSettings::get()->createWindow();
-	AppSettings::get()->initializeSubsystems();
+    Window *window = AppSettings::get()->createWindow();
+    AppSettings::get()->initializeSubsystems();
 
-	AppLogic *app = new TilingTestApp();
-	app->run();
+    AppLogic *app = new TilingTestApp();
+    app->run();
 
-	delete app;
-	AppSettings::get()->release();
-	delete window;
+    delete app;
+    AppSettings::get()->release();
+    delete window;
 
-	return 0;
+    return 0;
 }
