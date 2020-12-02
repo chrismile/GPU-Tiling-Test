@@ -21,59 +21,59 @@
 
 namespace sgl
 {
-	class Texture;
-	typedef boost::shared_ptr<Texture> TexturePtr;
-	class FramebufferObject;
-	typedef boost::shared_ptr<FramebufferObject> FramebufferObjectPtr;
+    class Texture;
+    typedef boost::shared_ptr<Texture> TexturePtr;
+    class FramebufferObject;
+    typedef boost::shared_ptr<FramebufferObject> FramebufferObjectPtr;
 }
 
 using namespace std;
 using namespace sgl;
 
 enum TilingMode {
-	/**
-	 * Renders a triangle spanning half of the screen and outputs in...
-	 * a) The red channel the thread index in each warp (rescaled to  [0,255])
-	 * b) The green channel the warp index in each SM (rescaled to  [0,255])
-	 * c) The blue channel the SM index (rescaled to [0,255])
-	 */
-	TILING_MODE_BINNING,
+    /**
+     * Renders a triangle spanning half of the screen and outputs in...
+     * a) The red channel the thread index in each warp (rescaled to  [0,255])
+     * b) The green channel the warp index in each SM (rescaled to  [0,255])
+     * c) The blue channel the SM index (rescaled to [0,255])
+     */
+    TILING_MODE_BINNING,
 
-	/**
-	 * Renders multiple triangles (similar to https://github.com/nlguillemot/trianglebin) and outputs only a limited
-	 * amount of pixels to see how the GPU processes tiled rendering.
-	 */
-	TILING_MODE_TILES
+    /**
+     * Renders multiple triangles (similar to https://github.com/nlguillemot/trianglebin) and outputs only a limited
+     * amount of pixels to see how the GPU processes tiled rendering.
+     */
+    TILING_MODE_TILES
 };
 
 class TilingTestApp : public AppLogic
 {
 public:
-	TilingTestApp();
-	~TilingTestApp();
-	void render();
-	void renderScene();
-	void renderGUI();
-	void update(float dt);
+    TilingTestApp();
+    ~TilingTestApp();
+    void render();
+    void renderScene();
+    void renderGUI();
+    void update(float dt);
     void processSDLEvent(const SDL_Event &event);
-	void resolutionChanged(EventPtr event);
+    void resolutionChanged(EventPtr event);
 
 private:
-	TilingMode mode;
+    TilingMode mode;
 
-	// Lighting & rendering
-	ShaderProgramPtr plainShader;
-	ShaderProgramPtr whiteSolidShader;
-	ShaderProgramPtr tilingIndicesShader; // for TILING_MODE_BINNING
-	ShaderProgramPtr tilingTilesShader; // for TILING_MODE_TILES
+    // Lighting & rendering
+    ShaderProgramPtr plainShader;
+    ShaderProgramPtr whiteSolidShader;
+    ShaderProgramPtr tilingIndicesShader; // for TILING_MODE_BINNING
+    ShaderProgramPtr tilingTilesShader; // for TILING_MODE_TILES
 
-	// Objects in the scene
-	ShaderAttributesPtr singleTriangle; // for TILING_MODE_BINNING
-	ShaderAttributesPtr multiTriangle; // for TILING_MODE_TILES
-	sgl::GeometryBufferPtr atomicCounterBuffer;
-	int numMultiTriangles;
+    // Objects in the scene
+    ShaderAttributesPtr singleTriangle; // for TILING_MODE_BINNING
+    ShaderAttributesPtr multiTriangle; // for TILING_MODE_TILES
+    sgl::GeometryBufferPtr atomicCounterBuffer;
+    int numMultiTriangles;
 
-	// Rendering parameters
+    // Rendering parameters
     uint32_t maxNumPixels;
     int renderWidth, renderHeight;
     int resolutionScale = 1;
@@ -86,8 +86,8 @@ private:
     int guiNewMode = 3; // Mode selection
 
     // For off-screen rendering (used for rendering at lower resolution than native)
-	FramebufferObjectPtr fbo;
-	TexturePtr renderTexture;
+    FramebufferObjectPtr fbo;
+    TexturePtr renderTexture;
 };
 
 #endif /* LOGIC_MainApp_HPP_ */
