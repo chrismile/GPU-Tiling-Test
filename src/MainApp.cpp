@@ -41,9 +41,16 @@
 #define RENDER_FRAMEBUFFER
 const int MAX_RESOLUTION_SCALE = 32;
 
+void openglErrorCallback() {
+    std::cerr << "Application callback" << std::endl;
+}
+
 // Modes: TILING_MODE_BINNING, TILING_MODE_TILES
 TilingTestApp::TilingTestApp() : mode(TILING_MODE_BINNING), numMultiTriangles(7) //, recording(false), videoWriter(NULL)
 {
+    sgl::Renderer->setErrorCallback(&openglErrorCallback);
+    sgl::Renderer->setDebugVerbosity(sgl::DEBUG_OUTPUT_CRITICAL_ONLY);
+
     if (!SystemGL::get()->isGLExtensionAvailable("GL_NV_shader_thread_group")) {
         Logfile::get()->writeError("Error: GL_NV_shader_thread_group not available. You won't be able to use "
                              "TILING_MODE_BINNING, however TILING_MODE_TILES should work on all systems.");
