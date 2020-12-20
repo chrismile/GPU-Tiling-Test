@@ -28,7 +28,7 @@ find_package(sgl REQUIRED)
 find_package(Boost COMPONENTS system filesystem REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
-target_link_libraries(GPUTilingTest sgl ${Boost_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
+target_link_libraries(GPUTilingTest sgl ${Boost_LIBRARIES} ${OPENGL_LIBRARIES} GLEW::GLEW)
 include_directories(${sgl_INCLUDES} ${Boost_INCLUDES} ${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDES})
 
 if(OPENMP_FOUND)
