@@ -22,9 +22,9 @@
 namespace sgl
 {
     class Texture;
-    typedef boost::shared_ptr<Texture> TexturePtr;
+    typedef std::shared_ptr<Texture> TexturePtr;
     class FramebufferObject;
-    typedef boost::shared_ptr<FramebufferObject> FramebufferObjectPtr;
+    typedef std::shared_ptr<FramebufferObject> FramebufferObjectPtr;
 }
 
 using namespace std;
