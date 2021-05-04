@@ -15,12 +15,15 @@ include_directories(src)
 
 #make VERBOSE=1
 
-IF(WIN32)
+set(FPHSA_NAME_MISMATCHED TRUE)
+find_package(SDL2 REQUIRED)
+find_package(SDL2_image REQUIRED)
+find_package(PNG REQUIRED)
+if((${CMAKE_GENERATOR} STREQUAL "MinGW Makefiles") OR (${CMAKE_GENERATOR} STREQUAL "MSYS Makefiles"))
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows")
-	target_link_libraries(GPUTilingTest mingw32 SDL2main SDL2)
-ELSE()
-	target_link_libraries(GPUTilingTest SDL2)
-ENDIF()
+	target_link_libraries(GPUTilingTest mingw32)
+endif()
+target_link_libraries(GPUTilingTest SDL2::Main)
 
 cmake_policy(SET CMP0012 NEW)
 find_package(OpenMP REQUIRED)
