@@ -5,6 +5,9 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMake)
 
 set (CMAKE_CXX_STANDARD 11)
 
+set(DATA_PATH "${CMAKE_SOURCE_DIR}/Data" CACHE PATH "location of folder 'Data'")
+add_definitions(-DDATA_PATH=\"${DATA_PATH}\")
+
 file(GLOB_RECURSE SOURCES src/*.cpp src/*.c)
 IF(WIN32)
 	add_executable(GPUTilingTest WIN32 ${SOURCES})
