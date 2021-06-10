@@ -35,7 +35,7 @@ find_package(Boost COMPONENTS system filesystem REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 target_link_libraries(GPUTilingTest sgl ${Boost_LIBRARIES} ${OPENGL_LIBRARIES} GLEW::GLEW)
-include_directories(${sgl_INCLUDES} ${Boost_INCLUDES} ${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDES})
+include_directories(${sgl_INCLUDES} ${Boost_INCLUDE_DIR} ${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDES})
 
 if(OPENMP_FOUND)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")

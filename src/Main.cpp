@@ -30,15 +30,14 @@ int main(int argc, char *argv[]) {
 #endif
     AppSettings::get()->setLoadGUI();
 
-    Window *window = AppSettings::get()->createWindow();
+    sgl::AppSettings::get()->createWindow();
     AppSettings::get()->initializeSubsystems();
 
     AppLogic *app = new TilingTestApp();
     app->run();
-
     delete app;
+
     AppSettings::get()->release();
-    delete window;
 
     return 0;
 }
