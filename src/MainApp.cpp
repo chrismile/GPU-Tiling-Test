@@ -272,20 +272,12 @@ void TilingTestApp::resolutionChanged(EventPtr event)
     if (mode == TILING_MODE_TILES) {
         if (currentPixelFormat == 0) {
             settings.internalFormat = GL_RGBA8;
-            settings.pixelFormat = GL_RGBA;
-            settings.pixelType = GL_UNSIGNED_INT;
         } else if (currentPixelFormat == 1) {
             settings.internalFormat = GL_RGBA16;
-            settings.pixelFormat = GL_RGBA;
-            settings.pixelType = GL_UNSIGNED_INT;
         } else if (currentPixelFormat == 1) {
             settings.internalFormat = GL_RGBA16F;
-            settings.pixelFormat = GL_RGBA;
-            settings.pixelType = GL_FLOAT;
         } else if (currentPixelFormat == 1) {
             settings.internalFormat = GL_RGBA32F;
-            settings.pixelFormat = GL_RGBA;
-            settings.pixelType = GL_FLOAT;
         }
     }
     settings.textureMagFilter = GL_NEAREST;
