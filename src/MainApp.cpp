@@ -5,13 +5,7 @@
  *      Author: Christoph Neuhauser
  */
 
-#define GLM_ENABLE_EXPERIMENTAL
 #include <climits>
-#include <glm/gtx/color_space.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/rotate_vector.hpp>
-#include <glm/gtx/euler_angles.hpp>
 #include <GL/glew.h>
 
 #include <Input/Keyboard.hpp>
